@@ -1,0 +1,10 @@
+C:\Users\YoloT\source\repos\projektJA\projekt\bin\Debug\projekt.exe.config
+C:\Users\YoloT\source\repos\projektJA\projekt\bin\Debug\projekt.exe
+C:\Users\YoloT\source\repos\projektJA\projekt\bin\Debug\projekt.pdb
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.csproj.AssemblyReference.cache
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.Form1.resources
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.Properties.Resources.resources
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.csproj.GenerateResource.cache
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.csproj.CoreCompileInputs.cache
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.exe
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\Debug\projekt.pdb
