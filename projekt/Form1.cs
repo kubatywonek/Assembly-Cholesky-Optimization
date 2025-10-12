@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Management;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Management;
-using System.Text.RegularExpressions;
+using CSlibrary;
 
 namespace projekt
 {
     public partial class Form1 : Form
     {
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern int Tescik();
         public Form1()
         {
             InitializeComponent();
@@ -26,6 +30,8 @@ namespace projekt
             threadSlider.Minimum = 1;
             threadSlider.Maximum = 64;
             threadSlider.Value = Environment.ProcessorCount;
+            //threadSlider.Value = Tescik();
+            //threadSlider.Value = Processor.tescik();
             ThreadsNum.Text = threadSlider.Value.ToString();
         }
 
@@ -48,8 +54,7 @@ namespace projekt
                     Indicator.Text = "Dane wczytane poprawnie.";
                     Indicator.ForeColor = Color.Green;
                     Indicator.Checked = true;
-                    // Tutaj możesz wywołać algorytm rozwiązywania (np. blokowy Cholesky)
-                    // Example: Solve(A, b);
+                    // cdn
                 }
                 catch (Exception ex){
                     MessageBox.Show("Błąd podczas wczytywania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);

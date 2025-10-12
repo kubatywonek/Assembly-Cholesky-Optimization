@@ -9,3 +9,6 @@ C:\Users\YoloT\source\repos\projektJA\projekt\obj\x64\Debug\projekt.csproj.CoreC
 C:\Users\YoloT\source\repos\projektJA\projekt\obj\x64\Debug\projekt.exe
 C:\Users\YoloT\source\repos\projektJA\projekt\obj\x64\Debug\projekt.pdb
 C:\Users\YoloT\source\repos\projektJA\projekt\obj\x64\Debug\projekt.exe.config
+C:\Users\YoloT\source\repos\projektJA\projekt\bin\x64\Debug\CSlibrary.dll
+C:\Users\YoloT\source\repos\projektJA\projekt\bin\x64\Debug\CSlibrary.pdb
+C:\Users\YoloT\source\repos\projektJA\projekt\obj\x64\Debug\projekt.csproj.Up2Date
