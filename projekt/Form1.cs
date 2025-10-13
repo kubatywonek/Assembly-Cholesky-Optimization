@@ -18,6 +18,9 @@ namespace projekt
 {
     public partial class Form1 : Form
     {
+        Double[,] A;
+        Double[] b;
+        string[] variables;
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern int Tescik();
         public Form1()
@@ -54,7 +57,13 @@ namespace projekt
                     Indicator.Text = "Dane wczytane poprawnie.";
                     Indicator.ForeColor = Color.Green;
                     Indicator.Checked = true;
-                    // cdn
+                    // symmetrical normalization
+                    double[,] ATransposed = Processor.Transpose(A);
+                    this.A = Processor.Multiply(ATransposed, A);
+                    this.b = Processor.Multiply(ATransposed, b);
+                    this.variables = variables;
+                    
+                    //cdn
                 }
                 catch (Exception ex){
                     MessageBox.Show("Błąd podczas wczytywania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
