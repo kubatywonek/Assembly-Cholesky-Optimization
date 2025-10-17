@@ -23,6 +23,8 @@ namespace projekt
         string[] variables;
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern int Tescik();
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
         public Form1()
         {
             InitializeComponent();
@@ -62,7 +64,12 @@ namespace projekt
                     this.A = Processor.Multiply(ATransposed, A);
                     this.b = Processor.Multiply(ATransposed, b);
                     this.variables = variables;
-                    
+
+                    double[,] BTransposed;
+
+                    Transpose(A, A.GetLength(0), A.GetLength(1), BTransposed = new double[A.GetLength(1), A.GetLength(0)]);
+                    this.LogMatrix(Processor.Transpose(A));
+                    this.LogMatrix(BTransposed);
                     //cdn
                 }
                 catch (Exception ex){
@@ -199,6 +206,20 @@ namespace projekt
         {
             if (string.IsNullOrWhiteSpace(s)) return false;
             return Regex.IsMatch(s.Trim(), @"^[+-]?\d+(?:\.\d+)?$");
+        }
+
+        private void LogMatrix(double[,] matrix)
+        {
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    Console.Write(matrix[i, j] + "\t");
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+            return;
         }
     }
 }
