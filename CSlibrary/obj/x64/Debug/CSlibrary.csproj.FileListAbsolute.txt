@@ -1,0 +1,6 @@
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\bin\x64\Debug\CSlibrary.dll
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\bin\x64\Debug\CSlibrary.pdb
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\obj\x64\Debug\CSlibrary.csproj.AssemblyReference.cache
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\obj\x64\Debug\CSlibrary.csproj.CoreCompileInputs.cache
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\obj\x64\Debug\CSlibrary.dll
+C:\Users\YoloT\source\repos\projektJA\CSlibrary\obj\x64\Debug\CSlibrary.pdb

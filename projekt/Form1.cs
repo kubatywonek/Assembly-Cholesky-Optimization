@@ -25,6 +25,8 @@ namespace projekt
         static extern int Tescik();
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
         public Form1()
         {
             InitializeComponent();
@@ -65,11 +67,20 @@ namespace projekt
                     this.b = Processor.Multiply(ATransposed, b);
                     this.variables = variables;
 
+                    //tests
+
                     double[,] BTransposed;
 
                     Transpose(A, A.GetLength(0), A.GetLength(1), BTransposed = new double[A.GetLength(1), A.GetLength(0)]);
                     this.LogMatrix(Processor.Transpose(A));
                     this.LogMatrix(BTransposed);
+
+
+                    double[,] Multiplied;
+                    Multiply_SSE2(A, A.GetLength(0), A.GetLength(1), A, A.GetLength(1), Multiplied = new double[A.GetLength(0), A.GetLength(1)]);
+                    this.LogMatrix(Processor.Multiply(A, A));
+                    this.LogMatrix(Multiplied);
+
                     //cdn
                 }
                 catch (Exception ex){
