@@ -1,4 +1,5 @@
 LIBRARY ASMlibrary 
 EXPORTS Transpose
+EXPORTS Multiply_Basic
 EXPORTS Multiply_SSE2
 EXPORTS Multiply_AVX

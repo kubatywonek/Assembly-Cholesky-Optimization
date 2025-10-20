@@ -54,6 +54,102 @@ Transpose ENDP
 
 
 
+
+
+Multiply_Basic PROC
+                                                ; STACK:
+    PUSH    rbp                                 ; arg 6
+    MOV     rbp, rsp                            ; arg 5
+    PUSH    rbx                                 ; /\
+    PUSH    rsi                                 ; || shadow space
+    PUSH    rdi                                 ; \/
+    PUSH    r12                                 ; return address
+    PUSH    r13                                 ; RBP <-- rbp
+    PUSH    r14                                 ; RBX
+    SUB     rsp, 32                             ; ...
+                                                ; R14 - 32 <-- rsp
+
+    MOV     rsi, rcx                                    ; A base -> rsi
+    MOV     rax, rdx                                    ; A Rows -> rax
+                                                        ; A Cols -> r8
+    MOV     r12, qword ptr [rbp + 48]                   ; B cols -> r12
+
+    MOV     r13, r9                                     ; B base -> r13
+    MOV     rdi, qword ptr [rbp + 56]                   ; C base -> rdi
+
+    TEST    rax, rax
+    JLE     @BASIC_DONE
+    TEST    r8, r8
+    JLE     @BASIC_DONE
+    TEST    r12, r12
+    JLE     @BASIC_DONE
+
+                              ; Main loops
+    XOR     rcx, rcx                                    ; i = 0
+@BASIC_i_LOOP:
+    MOV     rdx, rcx                                    ; rdx = i
+    IMUL    rdx, r8                                     ; rdx = i * A cols
+    SHL     rdx, 3                                      ; *3
+    LEA     rbx, [rsi + rdx]                            ; rbx = A[i,0] adress (LEA)
+
+    MOV     rdx, rcx                                    ; rdx = i
+    IMUL    rdx, r12                                    ; rdx = i * B cols
+    SHL     rdx, 3                                      ; *3
+    LEA     r9, [rdi + rdx]                             ; r9 = C[i,0] adress (LEA)
+
+    XOR     r10, r10                                    ; k = 0
+    @BASIC_k_LOOP:
+        CMP     r10, r8                             ; if(k >= A cols) i++
+        JGE     @BASIC_NEXT_i
+                                                
+        MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] to xmm0
+
+        MOV     r14, r10                            ; r14 = k
+        IMUL    r14, r12                            ; r14 = k * B cols
+        SHL     r14, 3                              ; *3
+        LEA     r11, [r13 + r14]                    ; r11 = B[k,0] adress (LEA)
+
+        XOR     rdx, rdx                            ; j = 0
+        @BASIC_j_LOOP:
+            CMP     rdx, r12                        ; if(j >= B cols) k++
+            JGE     @BASIC_NEXT_k
+
+            MOVUPD  xmm1, xmmword ptr [r11 + rdx*8]     ; load [ B[k,j], B[k,j+1] ]
+            MOVUPD  xmm2, xmmword ptr [r9  + rdx*8]     ; load [ C[k,j], C[k,j+1] ]
+
+            MULPD   xmm1, xmm0                          ; xmm1 = [ A[i,k]*B[k,j], A[i,k]*B[k,j+1] ]
+            ADDPD   xmm2, xmm1                          ; add to [ C[k,j], C[k,j+1] ]
+
+            MOVUPD  xmmword ptr [r9 + rdx*8], xmm2      ; store at [ C[k,j], C[k,j+1] ]
+
+            INC     rdx                                 ; j += 1
+            JMP     @BASIC_j_LOOP
+
+    @BASIC_NEXT_k:
+        INC     r10
+        JMP     @BASIC_k_LOOP                        ; repeat k loop
+
+@BASIC_NEXT_i:
+    INC     rcx
+    CMP     rcx, rax                                    ; if(i < A rows) repeat
+    JL      @BASIC_i_LOOP
+
+@BASIC_DONE:
+    ADD     rsp, 32
+    POP     r14
+    POP     r13
+    POP     r12
+    POP     rdi
+    POP     rsi
+    POP     rbx
+    POP     rbp
+    RET
+Multiply_Basic ENDP
+
+
+
+
+
 Multiply_SSE2 PROC
                                                 ; STACK:
     PUSH    rbp                                 ; arg 6
@@ -98,7 +194,7 @@ Multiply_SSE2 PROC
     XOR     r10, r10                                    ; k = 0
     @SSE_k_LOOP:
         CMP     r10, r8                             ; if(k >= A cols) i++
-        JGE     @NEXT_i
+        JGE     @SSE_NEXT_i
                                                 
         MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] and duplicate to xmm0
         MOVDDUP xmm0, xmm0                          ; xmm0 = [A[i,k], A[i,k]]
@@ -111,7 +207,7 @@ Multiply_SSE2 PROC
         XOR     rdx, rdx                            ; j = 0
         @SSE_j_LOOP:
             CMP     rdx, r12                        ; if(j >= B cols) k++
-            JGE     @NEXT_k
+            JGE     @SSE_NEXT_k
 
             MOVUPD  xmm1, xmmword ptr [r11 + rdx*8]     ; load [ B[k,j], B[k,j+1] ]
             MOVUPD  xmm2, xmmword ptr [r9  + rdx*8]     ; load [ C[k,j], C[k,j+1] ]
@@ -124,11 +220,11 @@ Multiply_SSE2 PROC
             ADD     rdx, 2                              ; j += 2 (jump over pair)
             JMP     @SSE_j_LOOP
 
-    @NEXT_k:
+    @SSE_NEXT_k:
         INC     r10
         JMP     @SSE_k_LOOP                        ; repeat k loop
 
-@NEXT_i:
+@SSE_NEXT_i:
     INC     rcx
     CMP     rcx, rax                                    ; if(i < A rows) repeat
     JL      @SSE_i_LOOP
@@ -144,8 +240,6 @@ Multiply_SSE2 PROC
     POP     rbp
     RET
 Multiply_SSE2 ENDP
-
-
 
 
 
@@ -195,10 +289,9 @@ Multiply_AVX PROC
     XOR     r10, r10                                    ; k = 0
     @AVX_k_LOOP:
         CMP     r10, r8                             ; if(k >= A cols) i++
-        JGE     @NEXT_i
+        JGE     @AVX_NEXT_i
                                                 
-        MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] to xmm0
-        VBROADCASTSD ymm0, xmm0                     ; ymm0 = [A[i,k], A[i,k], A[i,k], A[i,k]]
+        VBROADCASTSD ymm0, qword ptr [rbx + r10*8]   ; ymm0 = [A[i,k], A[i,k], A[i,k], A[i,k]]
 
         MOV     r14, r10                            ; r14 = k
         IMUL    r14, r12                            ; r14 = k * B cols
@@ -208,7 +301,7 @@ Multiply_AVX PROC
         XOR     rdx, rdx                            ; j = 0
         @AVX_j_LOOP:
             CMP     rdx, r12                        ; if(j >= B cols) k++
-            JGE     @NEXT_k
+            JGE     @AVX_NEXT_k
 
             VMOVUPD  ymm1, ymmword ptr [r11 + rdx*8]     ; load [ B[k,j], B[k,j+1], B[k,j+2], B[k,j+3] ]
             VMOVUPD  ymm2, ymmword ptr [r9  + rdx*8]     ; load [ C[k,j], C[k,j+1], C[k,j+2], C[k,j+3] ]
@@ -217,14 +310,14 @@ Multiply_AVX PROC
 
             VMOVUPD  ymmword ptr [r9 + rdx*8], ymm2      ; store at [ C[k,j], C[k,j+1] ]
 
-            ADD     rdx, 4                              ; j += 2 (jump over pair)
+            ADD     rdx, 4                              ; j += 4 (jump over pair)
             JMP     @AVX_j_LOOP
 
-    @NEXT_k:
+    @AVX_NEXT_k:
         INC     r10
         JMP     @AVX_k_LOOP                        ; repeat k loop
 
-@NEXT_i:
+@AVX_NEXT_i:
     INC     rcx
     CMP     rcx, rax                                    ; if(i < A rows) repeat
     JL      @AVX_i_LOOP

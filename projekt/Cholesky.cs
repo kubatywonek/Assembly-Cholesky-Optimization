@@ -16,6 +16,8 @@ namespace projekt
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern void Multiply_Basic(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
@@ -179,7 +181,8 @@ namespace projekt
                             double[,] L_jk_T;
                             Transpose(L_jk, rows_j, panelSize, L_jk_T = new double[panelSize, rows_j]);
                             double[,] product;
-                            Multiply_AVX(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
+                            if(rows_i == blockSize && rows_j == blockSize)Multiply_AVX(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
+                            else Multiply_Basic(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
 
                             double[,] Aij = GetBlock(this.A, i, j, rows_i, rows_j);
                             SubtractAndSave(Aij, product);
@@ -260,7 +263,8 @@ namespace projekt
                             double[,] L_jk_T;
                             Transpose(L_jk, rows_j, panelSize, L_jk_T = new double[panelSize, rows_j]);
                             double[,] product;
-                            Multiply_SSE2(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
+                            if (rows_i == blockSize && rows_j == blockSize) Multiply_SSE2(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
+                            else Multiply_Basic(L_ik, rows_i, panelSize, L_jk_T, rows_j, product = new double[rows_i, rows_j]);
 
                             double[,] Aij = GetBlock(this.A, i, j, rows_i, rows_j);
                             SubtractAndSave(Aij, product);
