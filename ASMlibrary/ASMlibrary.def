@@ -1,4 +1,4 @@
 LIBRARY ASMlibrary 
-EXPORTS Tescik
 EXPORTS Transpose
 EXPORTS Multiply_SSE2
+EXPORTS Multiply_AVX

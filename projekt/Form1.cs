@@ -1,8 +1,10 @@
-﻿using System;
+﻿using CSlibrary; //temporary
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,33 +14,31 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CSlibrary;
 
 namespace projekt
 {
     public partial class Form1 : Form
     {
-        Double[,] A;
-        Double[] b;
-        string[] variables;
-        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
-        static extern int Tescik();
+        Cholesky choleskySolver;
+        bool ready = false;
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+
         public Form1()
         {
             InitializeComponent();
             InitializeThreadSlider();
+            choleskySolver = null;
         }
         private void InitializeThreadSlider()
         {
             threadSlider.Minimum = 1;
             threadSlider.Maximum = 64;
             threadSlider.Value = Environment.ProcessorCount;
-            //threadSlider.Value = Tescik();
-            //threadSlider.Value = Processor.tescik();
             ThreadsNum.Text = threadSlider.Value.ToString();
         }
 
@@ -61,33 +61,15 @@ namespace projekt
                     Indicator.Text = "Dane wczytane poprawnie.";
                     Indicator.ForeColor = Color.Green;
                     Indicator.Checked = true;
-                    // symmetrical normalization
-                    double[,] ATransposed = Processor.Transpose(A);
-                    this.A = Processor.Multiply(ATransposed, A);
-                    this.b = Processor.Multiply(ATransposed, b);
-                    this.variables = variables;
-
-                    //tests
-
-                    double[,] BTransposed;
-
-                    Transpose(A, A.GetLength(0), A.GetLength(1), BTransposed = new double[A.GetLength(1), A.GetLength(0)]);
-                    this.LogMatrix(Processor.Transpose(A));
-                    this.LogMatrix(BTransposed);
-
-
-                    double[,] Multiplied;
-                    Multiply_SSE2(A, A.GetLength(0), A.GetLength(1), A, A.GetLength(1), Multiplied = new double[A.GetLength(0), A.GetLength(1)]);
-                    this.LogMatrix(Processor.Multiply(A, A));
-                    this.LogMatrix(Multiplied);
-
-                    //cdn
+                    ready = true;
+                    choleskySolver = new Cholesky(A, b, variables);
                 }
                 catch (Exception ex){
                     MessageBox.Show("Błąd podczas wczytywania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Indicator.Text = "Brak danych.";
                     Indicator.ForeColor = Color.Red;
                     Indicator.Checked = false;
+                    ready = false;
                 }
             }
         }
@@ -219,6 +201,9 @@ namespace projekt
             return Regex.IsMatch(s.Trim(), @"^[+-]?\d+(?:\.\d+)?$");
         }
 
+        /// tworzy szybki podgląd na stan macierzy.
+        /// wyświetla zawartość macierzy przy pomocy Console.Write().
+        /// funkcja deweloperska do testów.
         private void LogMatrix(double[,] matrix)
         {
             for (int i = 0; i < matrix.GetLength(0); i++)
@@ -231,6 +216,47 @@ namespace projekt
             }
             Console.WriteLine();
             return;
+        }
+
+        /// tworzy szybki podgląd na stan wektora.
+        /// wyświetla zawartość wektora przy pomocy Console.Write().
+        /// funkcja deweloperska do testów.
+        private void LogVector(double[] vec)
+        {
+            for (int i = 0; i < vec.GetLength(0); i++)
+            {
+                Console.Write(vec[i] + "\t");
+            }
+            Console.WriteLine();
+            return;
+        }
+
+        private void StartButton_Click(object sender, EventArgs e)
+        {
+            if(ready == false)
+            {
+                MessageBox.Show("Brak wczytanych danych. Załaduj dane przed rozpoczęciem przetwarzania.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            int num = threadSlider.Value;
+            choleskySolver.SetThreads(num);
+            double[] result = choleskySolver.Solve(ASMButton.Checked); // true - ASM, false - C#
+            LogVector(result);
+            ready = false;
+            Indicator.Text = "Brak danych.";
+            Indicator.ForeColor = Color.Red;
+            Indicator.Checked = false;
+            ready = false;
+        }
+
+        private void CButton_CheckedChanged(object sender, EventArgs e)
+        {
+            ASMButton.Checked = !CButton.Checked;
+        }
+
+        private void ASMButton_CheckedChanged(object sender, EventArgs e)
+        {
+            CButton.Checked = !ASMButton.Checked;
         }
     }
 }

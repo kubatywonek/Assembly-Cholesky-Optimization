@@ -49,6 +49,7 @@
             this.CButton.TabStop = true;
             this.CButton.Text = "C#";
             this.CButton.UseVisualStyleBackColor = true;
+            this.CButton.CheckedChanged += new System.EventHandler(this.CButton_CheckedChanged);
             // 
             // ASMButton
             // 
@@ -60,6 +61,7 @@
             this.ASMButton.TabStop = true;
             this.ASMButton.Text = "ASM";
             this.ASMButton.UseVisualStyleBackColor = true;
+            this.ASMButton.CheckedChanged += new System.EventHandler(this.ASMButton_CheckedChanged);
             // 
             // LoadButton
             // 
@@ -79,6 +81,7 @@
             this.StartButton.TabIndex = 4;
             this.StartButton.Text = "Procesuj";
             this.StartButton.UseVisualStyleBackColor = true;
+            this.StartButton.Click += new System.EventHandler(this.StartButton_Click);
             // 
             // threadSlider
             // 

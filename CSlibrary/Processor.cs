@@ -8,10 +8,6 @@ namespace CSlibrary
 {
     public class Processor
     {
-        public static int tescik()
-        {
-            return 1;
-        }
         public static double[,] Transpose(double[,] A)
         {
             if (A != null) {
@@ -77,76 +73,6 @@ namespace CSlibrary
             }
 
             return C;
-        }
-
-        public static double[,] Inverse(double[,] A)
-        {
-            if (A is null) throw new ArgumentNullException(nameof(A));
-            int n = A.GetLength(0);
-            if (A.GetLength(1) != n) throw new ArgumentException("Macierz musi być kwadratowa.");
-
-            // macierz rozszerzona [A | I]
-            var aug = new double[n, 2 * n];
-            for (int i = 0; i < n; ++i)
-            {
-                for (int j = 0; j < n; ++j)
-                    aug[i, j] = A[i, j];
-                for (int j = 0; j < n; ++j)
-                    aug[i, n + j] = (i == j) ? 1.0 : 0.0;
-            }
-
-            const double EPS = 1e-15; // tolerancja 
-            for (int col = 0; col < n; ++col)
-            {
-                // szukanie max elementu w kolumnie
-                int pivotRow = col;
-                double maxAbs = Math.Abs(aug[col, col]);
-                for (int r = col + 1; r < n; ++r)
-                {
-                    double val = Math.Abs(aug[r, col]);
-                    if (val > maxAbs)
-                    {
-                        maxAbs = val;
-                        pivotRow = r;
-                    }
-                }
-
-                if (maxAbs < EPS)
-                    throw new InvalidOperationException("Macierz jest osobliwa lub blisko osobliwa. Nie można obliczyć odwrotności.");
-
-                if (pivotRow != col)
-                {
-                    for (int c = 0; c < 2 * n; ++c)
-                    {
-                        double tmp = aug[col, c];
-                        aug[col, c] = aug[pivotRow, c];
-                        aug[pivotRow, c] = tmp;
-                    }
-                }
-
-                // dzielenie przez pivot
-                double pivot = aug[col, col];
-                for (int c = 0; c < 2 * n; ++c)
-                    aug[col, c] /= pivot;
-
-                // redukcja pozostałych wierszy
-                for (int r = 0; r < n; ++r)
-                {
-                    if (r == col) continue;
-                    double factor = aug[r, col];
-                    if (factor == 0.0) continue;
-                    for (int c = col; c < 2 * n; ++c)
-                        aug[r, c] -= factor * aug[col, c];
-                }
-            }
-
-            // macierz odwrotna -> [I | A^-1]
-            var inv = new double[n, n];
-            for (int i = 0; i < n; ++i)
-                for (int j = 0; j < n; ++j)
-                    inv[i, j] = aug[i, n + j];
-
-            return inv;
         }
     }
 }
