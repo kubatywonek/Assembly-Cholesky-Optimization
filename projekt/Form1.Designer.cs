@@ -36,6 +36,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.ThreadsNum = new System.Windows.Forms.Label();
             this.Indicator = new System.Windows.Forms.RadioButton();
+            this.TimeLabel = new System.Windows.Forms.Label();
+            this.Time = new System.Windows.Forms.Label();
+            this.ReloadButton = new System.Windows.Forms.Button();
+            this.RegularizationCheckbox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.threadSlider)).BeginInit();
             this.SuspendLayout();
             // 
@@ -126,11 +130,55 @@
             this.Indicator.Text = "Brak danych";
             this.Indicator.UseVisualStyleBackColor = true;
             // 
+            // TimeLabel
+            // 
+            this.TimeLabel.AutoSize = true;
+            this.TimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.TimeLabel.Location = new System.Drawing.Point(53, 139);
+            this.TimeLabel.Name = "TimeLabel";
+            this.TimeLabel.Size = new System.Drawing.Size(123, 20);
+            this.TimeLabel.TabIndex = 9;
+            this.TimeLabel.Text = "Czas wykonania";
+            // 
+            // Time
+            // 
+            this.Time.AutoSize = true;
+            this.Time.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.Time.Location = new System.Drawing.Point(82, 170);
+            this.Time.Name = "Time";
+            this.Time.Size = new System.Drawing.Size(37, 16);
+            this.Time.TabIndex = 10;
+            this.Time.Text = "--:--:--";
+            // 
+            // ReloadButton
+            // 
+            this.ReloadButton.Location = new System.Drawing.Point(161, 35);
+            this.ReloadButton.Name = "ReloadButton";
+            this.ReloadButton.Size = new System.Drawing.Size(102, 23);
+            this.ReloadButton.TabIndex = 11;
+            this.ReloadButton.Text = "Załaduj ponownie";
+            this.ReloadButton.UseVisualStyleBackColor = true;
+            this.ReloadButton.Click += new System.EventHandler(this.ReloadButton_Click);
+            // 
+            // RegularizationCheckbox
+            // 
+            this.RegularizationCheckbox.AutoSize = true;
+            this.RegularizationCheckbox.Location = new System.Drawing.Point(53, 97);
+            this.RegularizationCheckbox.Name = "RegularizationCheckbox";
+            this.RegularizationCheckbox.Size = new System.Drawing.Size(93, 17);
+            this.RegularizationCheckbox.TabIndex = 12;
+            this.RegularizationCheckbox.Text = "Regularyzacja";
+            this.RegularizationCheckbox.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(405, 450);
+            this.Controls.Add(this.RegularizationCheckbox);
+            this.Controls.Add(this.ReloadButton);
+            this.Controls.Add(this.Time);
+            this.Controls.Add(this.TimeLabel);
             this.Controls.Add(this.Indicator);
             this.Controls.Add(this.ThreadsNum);
             this.Controls.Add(this.label1);
@@ -157,6 +205,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label ThreadsNum;
         private System.Windows.Forms.RadioButton Indicator;
+        private System.Windows.Forms.Label TimeLabel;
+        private System.Windows.Forms.Label Time;
+        private System.Windows.Forms.Button ReloadButton;
+        private System.Windows.Forms.CheckBox RegularizationCheckbox;
     }
 }
 

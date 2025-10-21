@@ -19,8 +19,11 @@ namespace projekt
 {
     public partial class Form1 : Form
     {
-        Cholesky choleskySolver;
+        Cholesky[] choleskySolvers = new Cholesky[5];
         bool ready = false;
+        double[,] A;
+        double[] b;
+        string[] variables;
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
         [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
@@ -32,7 +35,13 @@ namespace projekt
         {
             InitializeComponent();
             InitializeThreadSlider();
-            choleskySolver = null;
+            for(int i = 0; i < choleskySolvers.Length; ++i){
+                choleskySolvers[i] = null;
+            }
+            A = null;
+            b = null;
+            variables = null;
+            ReloadButton.Enabled = false;
         }
         private void InitializeThreadSlider()
         {
@@ -62,7 +71,9 @@ namespace projekt
                     Indicator.ForeColor = Color.Green;
                     Indicator.Checked = true;
                     ready = true;
-                    choleskySolver = new Cholesky(A, b, variables);
+                    this.A = A;
+                    this.b = b;
+                    this.variables = variables;
                 }
                 catch (Exception ex){
                     MessageBox.Show("Błąd podczas wczytywania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -233,20 +244,35 @@ namespace projekt
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            if(ready == false)
-            {
+            if(ready == false){
                 MessageBox.Show("Brak wczytanych danych. Załaduj dane przed rozpoczęciem przetwarzania.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            for (int i = 0; i < choleskySolvers.Length; ++i) choleskySolvers[i] = new Cholesky(this.A, this.b);
             int num = threadSlider.Value;
-            choleskySolver.SetThreads(num);
-            double[] result = choleskySolver.Solve(ASMButton.Checked); // true - ASM, false - C#
-            LogVector(result);
-            ready = false;
-            Indicator.Text = "Brak danych.";
-            Indicator.ForeColor = Color.Red;
-            Indicator.Checked = false;
-            ready = false;
+            foreach(Cholesky choleskySolver in choleskySolvers) choleskySolver.SetThreads(num);
+            List<double[]> results = new List<double[]>();
+            try{
+                // ASMButton -> true - ASM, false - C#          RegularizationCheckbox -> true - potentially Tikhonov, false - none
+                foreach (Cholesky choleskySolver in choleskySolvers) results.Add(choleskySolver.Solve(ASMButton.Checked, RegularizationCheckbox.Checked));
+                for (int i = 1; i < results.Count; ++i) if (!results[i].SequenceEqual(results[i - 1])) throw new Exception("Niespójne wyniki!");
+                float accTime = 0f;
+                foreach (Cholesky choleskySolver in choleskySolvers) accTime += choleskySolver.GetTime();
+                accTime /= choleskySolvers.Length;
+                Time.Text = accTime.ToString("F2") + " ms";
+            }
+            catch (Exception ex){
+                MessageBox.Show("Błąd podczas przetwarzania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally{
+                for(int i = 0; i < choleskySolvers.Length; ++i) choleskySolvers[i] = null;
+                ready = false;
+                Indicator.Text = "Brak danych.";
+                Indicator.ForeColor = Color.Red;
+                Indicator.Checked = false;
+                ReloadButton.Enabled = true;
+            }
+            
         }
 
         private void CButton_CheckedChanged(object sender, EventArgs e)
@@ -257,6 +283,19 @@ namespace projekt
         private void ASMButton_CheckedChanged(object sender, EventArgs e)
         {
             CButton.Checked = !ASMButton.Checked;
+        }
+
+        private void ReloadButton_Click(object sender, EventArgs e)
+        {
+            if (A != null && b != null && variables != null)
+            {
+                ReloadButton.Enabled = false;
+                Indicator.Text = "Dane wczytane poprawnie.";
+                Indicator.ForeColor = Color.Green;
+                Indicator.Checked = true;
+                ready = true;
+            }
+            else MessageBox.Show("Nie wczytano danych. Załaduj dane przed ponownym przetwarzaniem.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

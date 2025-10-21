@@ -1,9 +1,11 @@
 ﻿using CSlibrary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,12 +25,14 @@ namespace projekt
         static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
         double[,] A;
         double[] b;
-        string[] variables;
         int nThreads;
-        public Cholesky(double[,] CoefMatrix, double[] ResVector, string[] variables)
+        Stopwatch timer;
+        static bool Tikhonov;
+        public Cholesky(double[,] CoefMatrix, double[] ResVector)
         {
+            Tikhonov = false;
             this.nThreads = 1;
-            this.variables = variables;
+            this.timer = new Stopwatch();
             double[,] CoefTransposed = Processor.Transpose(CoefMatrix);
             if (CoefMatrix.GetLength(0) != CoefMatrix.GetLength(1)) throw new ArgumentException("Macierz współczynników musi być kwadratowa.");
             if (CoefTransposed != null) {
@@ -38,20 +42,36 @@ namespace projekt
             else throw new ArgumentException("Błąd podczas transpozycji macierzy współczynników.");
         }
         public void SetThreads(int threads) { this.nThreads = threads; }
-
+        public long GetTime() { return timer.ElapsedMilliseconds; }
         public double[] SolveDebug(int num){
             if(num == 0) return SolveC(4);
             else if(num == 1) return SolveSSE(2);
             else return SolveAVX(4);
         }
 
-        public double[] Solve(bool asm){
+        public double[] Solve(bool asm, bool regularization){
+            Tikhonov = regularization;
             int blockSize = setSize(A.GetLength(0), nThreads);
-            if (asm){
-                if(blockSize == 2) return SolveSSE(blockSize);
-                else return SolveAVX(blockSize);
+            double[] result = new double[b.GetLength(0)];
+            if (asm)
+            {
+                if (blockSize == 2){
+                    timer.Start();
+                    result = SolveSSE(blockSize);
+                    timer.Stop();
+                }
+                else{
+                    timer.Start();
+                    result = SolveAVX(blockSize);
+                    timer.Stop();
+                }
             }
-            else return SolveC(blockSize);
+            else{
+                timer.Start();
+                result = SolveC(blockSize);
+                timer.Stop();
+            }
+            return result;
         }
 
         private double[] SolveC(int blockSize){
@@ -389,8 +409,16 @@ namespace projekt
                 double sum = 0.0;
                 for (int s = 0; s < k; ++s) sum += L[k, s] * L[k, s];
                 double d = A[k, k] - sum;
-                if (d <= 0.0 || double.IsNaN(d))
-                    throw new InvalidOperationException("Macierz nie jest dodatnio określona (pivot <= 0).");
+                if (d <= 0.0 || double.IsNaN(d)){
+                    if(!Tikhonov)throw new InvalidOperationException("Macierz nie jest dodatnio określona.");
+                    else {
+                        TikhonovReg(A);
+                        sum = 0.0;
+                        for (int s = 0; s < k; ++s) sum += L[k, s] * L[k, s];
+                        d = A[k, k] - sum;
+                    }
+                }
+                    
                 L[k, k] = Math.Sqrt(d);
 
                 for (int i = k + 1; i < n; ++i)
@@ -454,6 +482,17 @@ namespace projekt
             int row = A.GetLength(0), col = A.GetLength(1);
             for (int i = 0; i < row; ++i)
                 for (int j = 0; j < col; ++j) A[i, j] -= B[i, j];
+        }
+
+        private static void TikhonovReg(double[,] matrix)
+        {
+            const float LAMBDA_COEF = 0.001f;
+            if (matrix is null) throw new ArgumentNullException(nameof(matrix));
+            if(matrix.GetLength(0) != matrix.GetLength(1)) throw new ArgumentException("Niepoprawna macierz do regularyzacji.");
+            for(int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                matrix[i, i] += LAMBDA_COEF;
+            }
         }
     }
 }

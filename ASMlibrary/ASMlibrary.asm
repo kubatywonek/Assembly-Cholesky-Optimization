@@ -114,13 +114,13 @@ Multiply_Basic PROC
             CMP     rdx, r12                        ; if(j >= B cols) k++
             JGE     @BASIC_NEXT_k
 
-            MOVUPD  xmm1, xmmword ptr [r11 + rdx*8]     ; load [ B[k,j], B[k,j+1] ]
-            MOVUPD  xmm2, xmmword ptr [r9  + rdx*8]     ; load [ C[k,j], C[k,j+1] ]
+            MOVSD  xmm1, qword ptr [r11 + rdx*8]     ; load [ B[k,j] ]
+            MOVSD  xmm2, qword ptr [r9  + rdx*8]     ; load [ C[k,j] ]
 
-            MULPD   xmm1, xmm0                          ; xmm1 = [ A[i,k]*B[k,j], A[i,k]*B[k,j+1] ]
-            ADDPD   xmm2, xmm1                          ; add to [ C[k,j], C[k,j+1] ]
+            MULPD   xmm1, xmm0                          ; xmm1 = [ A[i,k]*B[k,j] ]
+            ADDPD   xmm2, xmm1                          ; add to [ C[k,j] ]
 
-            MOVUPD  xmmword ptr [r9 + rdx*8], xmm2      ; store at [ C[k,j], C[k,j+1] ]
+            MOVSD  qword ptr [r9 + rdx*8], xmm2      ; store at [ C[k,j] ]
 
             INC     rdx                                 ; j += 1
             JMP     @BASIC_j_LOOP
@@ -196,8 +196,7 @@ Multiply_SSE2 PROC
         CMP     r10, r8                             ; if(k >= A cols) i++
         JGE     @SSE_NEXT_i
                                                 
-        MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] and duplicate to xmm0
-        MOVDDUP xmm0, xmm0                          ; xmm0 = [A[i,k], A[i,k]]
+        MOVDDUP xmm0, qword ptr [rbx + r10*8]       ; xmm0 = [A[i,k], A[i,k]]
 
         MOV     r14, r10                            ; r14 = k
         IMUL    r14, r12                            ; r14 = k * B cols
