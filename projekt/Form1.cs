@@ -256,6 +256,7 @@ namespace projekt
                 // ASMButton -> true - ASM, false - C#          RegularizationCheckbox -> true - potentially Tikhonov, false - none
                 foreach (Cholesky choleskySolver in choleskySolvers) results.Add(choleskySolver.Solve(ASMButton.Checked, RegularizationCheckbox.Checked));
                 for (int i = 1; i < results.Count; ++i) if (!results[i].SequenceEqual(results[i - 1])) throw new Exception("Niespójne wyniki!");
+                SaveResults(results[0]);
                 float accTime = 0f;
                 foreach (Cholesky choleskySolver in choleskySolvers) accTime += choleskySolver.GetTime();
                 accTime /= choleskySolvers.Length;
@@ -296,6 +297,22 @@ namespace projekt
                 ready = true;
             }
             else MessageBox.Show("Nie wczytano danych. Załaduj dane przed ponownym przetwarzaniem.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        // function that saves results to a text file
+        // default location is desktop
+        // file has timestamp in name to avoid overwriting
+        private void SaveResults(double[] results)
+        {
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string fileName = $"CholeskyResults_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.txt";
+            string fullPath = Path.Combine(desktopPath, fileName);
+            StreamWriter output = new StreamWriter(fullPath);
+            for (int i = 0; i < results.Length; i++){
+                    output.WriteLine($"{variables[i]} = {results[i]}");
+            }
+            output.Close();
+            return;
         }
     }
 }
