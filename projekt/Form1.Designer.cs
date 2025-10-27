@@ -188,7 +188,7 @@
             this.Controls.Add(this.ASMButton);
             this.Controls.Add(this.CButton);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Cholesky";
             ((System.ComponentModel.ISupportInitialize)(this.threadSlider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

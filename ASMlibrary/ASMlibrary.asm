@@ -1,5 +1,10 @@
 .code 
 
+DllMain PROC
+    mov     eax, 1
+    ret
+DllMain ENDP
+
 Transpose PROC
     TEST    rdx, rdx
     JLE     @TRANSPOSE_DONE
