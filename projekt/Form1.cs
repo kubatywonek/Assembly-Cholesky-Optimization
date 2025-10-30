@@ -253,8 +253,10 @@ namespace projekt
                 SaveResults(results[0]);
                 float accTime = 0f;
                 foreach (Cholesky choleskySolver in choleskySolvers) accTime += choleskySolver.GetTime();
+                var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+                nfi.NumberGroupSeparator = "  ";
                 accTime /= choleskySolvers.Length;
-                Time.Text = accTime.ToString("F2") + " ms";
+                Time.Text = accTime.ToString("#,0.00", nfi) + " ticks";
             }
             catch (Exception ex){
                 MessageBox.Show("Błąd podczas przetwarzania: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);

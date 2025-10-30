@@ -52,7 +52,7 @@ namespace projekt
             else throw new ArgumentException("Błąd podczas transpozycji macierzy współczynników.");
         }
         public void SetThreads(int threads) { this.nThreads = threads; }
-        public long GetTime() { return timer.ElapsedMilliseconds; }
+        public long GetTime() { return timer.ElapsedTicks; }
         public double[] SolveDebug(int num){
             if(num == 0) return SolveC(4);
             else if(num == 1) return SolveSSE(2);

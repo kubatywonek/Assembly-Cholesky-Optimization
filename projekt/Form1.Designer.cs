@@ -144,7 +144,7 @@
             // 
             this.Time.AutoSize = true;
             this.Time.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.Time.Location = new System.Drawing.Point(82, 170);
+            this.Time.Location = new System.Drawing.Point(60, 180);
             this.Time.Name = "Time";
             this.Time.Size = new System.Drawing.Size(37, 16);
             this.Time.TabIndex = 10;
@@ -156,7 +156,7 @@
             this.ReloadButton.Name = "ReloadButton";
             this.ReloadButton.Size = new System.Drawing.Size(102, 23);
             this.ReloadButton.TabIndex = 11;
-            this.ReloadButton.Text = "Załaduj ponownie";
+            this.ReloadButton.Text = "Użyj ponownie";
             this.ReloadButton.UseVisualStyleBackColor = true;
             this.ReloadButton.Click += new System.EventHandler(this.ReloadButton_Click);
             // 
