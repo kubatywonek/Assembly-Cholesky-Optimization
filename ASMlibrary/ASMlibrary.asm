@@ -108,6 +108,8 @@ Multiply_Basic PROC
         JGE     @BASIC_NEXT_i
                                                 
         MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] to xmm0
+        UCOMISD xmm0, xmm0
+        JE      @BASIC_NEXT_k                         ; if A[i,k] == 0 skip
 
         MOV     r14, r10                            ; r14 = k
         IMUL    r14, r12                            ; r14 = k * B cols
@@ -202,6 +204,8 @@ Multiply_SSE2 PROC
         JGE     @SSE_NEXT_i
                                                 
         MOVDDUP xmm0, qword ptr [rbx + r10*8]       ; xmm0 = [A[i,k], A[i,k]]
+        UCOMISD xmm0, xmm0
+        JE      @SSE_NEXT_k                         ; if A[i,k] == 0 skip
 
         MOV     r14, r10                            ; r14 = k
         IMUL    r14, r12                            ; r14 = k * B cols
