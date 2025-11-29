@@ -15,24 +15,26 @@ namespace projekt
 
     internal class Cholesky
     {
-        /*
-        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Release\ASMlibrary.dll")]
+        
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
-        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Release\ASMlibrary.dll")]
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Multiply_Basic(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
-        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Release\ASMlibrary.dll")]
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
         static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
-        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Release\ASMlibrary.dll")]
+        [DllImport(@"C:\Users\YoloT\source\repos\projektJA\projekt\x64\Debug\ASMlibrary.dll")]
+        static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+        
+        /*
+        [DllImport(@"ASMlibrary.dll")]
+        static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
+        [DllImport(@"ASMlibrary.dll")]
+        static extern void Multiply_Basic(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+        [DllImport(@"ASMlibrary.dll")]
+        static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
+        [DllImport(@"ASMlibrary.dll")]
         static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
         */
-        [DllImport(@"ASMlibrary.dll")]
-        static extern void Transpose(double[,] src, int rows, int cols, double[,] dst);
-        [DllImport(@"ASMlibrary.dll")]
-        static extern void Multiply_Basic(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
-        [DllImport(@"ASMlibrary.dll")]
-        static extern void Multiply_SSE2(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
-        [DllImport(@"ASMlibrary.dll")]
-        static extern void Multiply_AVX(double[,] multiplicantA, int Arows, int Acols, double[,] multiplierB, int Bcols, double[,] dst);
         double[,] A;
         double[] b;
         int nThreads;

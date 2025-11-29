@@ -78,6 +78,7 @@ Multiply_Basic PROC
     MOV     rax, rdx                                    ; A Rows -> rax
                                                         ; A Cols -> r8
     MOV     r12, qword ptr [rbp + 48]                   ; B cols -> r12
+    XORPD   xmm3, xmm3                                  ; xmm3 = 0.0
 
     MOV     r13, r9                                     ; B base -> r13
     MOV     rdi, qword ptr [rbp + 56]                   ; C base -> rdi
@@ -108,7 +109,7 @@ Multiply_Basic PROC
         JGE     @BASIC_NEXT_i
                                                 
         MOVSD   xmm0, qword ptr [rbx + r10*8]       ; load A[i,k] to xmm0
-        UCOMISD xmm0, xmm0
+        UCOMISD xmm0, xmm3
         JE      @BASIC_NEXT_k                         ; if A[i,k] == 0 skip
 
         MOV     r14, r10                            ; r14 = k
@@ -177,6 +178,7 @@ Multiply_SSE2 PROC
 
     MOV     r13, r9                                     ; B base -> r13
     MOV     rdi, qword ptr [rbp + 56]                   ; C base -> rdi
+    XORPD   xmm3, xmm3                                  ; xmm3 = 0.0
 
     TEST    rax, rax
     JLE     @SSE_DONE
@@ -204,7 +206,7 @@ Multiply_SSE2 PROC
         JGE     @SSE_NEXT_i
                                                 
         MOVDDUP xmm0, qword ptr [rbx + r10*8]       ; xmm0 = [A[i,k], A[i,k]]
-        UCOMISD xmm0, xmm0
+        UCOMISD xmm0, xmm3
         JE      @SSE_NEXT_k                         ; if A[i,k] == 0 skip
 
         MOV     r14, r10                            ; r14 = k
